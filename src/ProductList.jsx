@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import "./ProductList.css";
 import CartItem from "./CartItem";
 import { addItem } from "./redux/CartSlice.jsx";
-
 import { useDispatch, useSelector } from "react-redux";
 
 function ProductList({ onHomeClick }) {
