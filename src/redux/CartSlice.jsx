@@ -6,38 +6,45 @@ export const CartSlice = createSlice({
     items: [], // Lista de productos en el carrito
   },
   reducers: {
+    // Agrega un producto al carrito
     addItem: (state, action) => {
-        const { name, image, cost } = action.payload; // Destructure product details from the action payload
-        // Check if the item already exists in the cart by comparing names
-        const existingItem = state.items.find(item => item.name === name);
-        if (existingItem) {
-          // If item already exists in the cart, increase its quantity
-          existingItem.quantity++;
-        } else {
-          // If item does not exist, add it to the cart with quantity 1
-          state.items.push({ name, image, cost, quantity: 1 });
-        }
-      },
-    removeItem: (state, action) => {
-      // Elimina un producto por su id o nombre
-      state.items = state.items.filter(
-        (item) => item.name !== action.payload.id
-      );
+      const { name, image, cost } = action.payload;
+
+      // Validación básica: asegurar que los campos requeridos estén presentes
+      if (!name || !image || !cost) {
+        console.warn("addItem: Missing required fields (name, image, cost)");
+        return; // Ignorar la acción si faltan campos
+      }
+
+      // Verifica si el producto ya existe en el carrito
+      const existingItem = state.items.find(item => item.name === name);
+      if (existingItem) {
+        existingItem.quantity++; // Si existe, aumenta la cantidad
+      } else {
+        state.items.push({ name, image, cost, quantity: 1 }); // Si no existe, agregar con cantidad 1
+      }
     },
+
+    // Elimina un producto del carrito
+    removeItem: (state, action) => {
+      // Aquí action.payload es directamente el nombre del producto
+      state.items = state.items.filter(item => item.name !== action.payload);
+    },
+
+    // Actualiza la cantidad de un producto en el carrito
     updateQuantity: (state, action) => {
-      // Actualiza la cantidad de un producto existente
-      const { name, quantity } = action.payload; // Destructure the product name and new quantity from the action payload
-      // Find the item in the cart that matches the given name
+      const { name, quantity } = action.payload;
       const itemToUpdate = state.items.find(item => item.name === name);
       if (itemToUpdate) {
-        itemToUpdate.quantity = quantity; // If the item is found, update its quantity to the new value
+        // Validación: asegurar que quantity sea un número positivo
+        itemToUpdate.quantity = Math.max(1, parseInt(quantity, 10) || 1);
       }
     },
   },
 });
 
-// Exporta las acciones generadas automáticamente
+// Exporta las acciones para usar en los componentes
 export const { addItem, removeItem, updateQuantity } = CartSlice.actions;
 
-// Exporta el reducer para usarlo en el store
+// Exporta el reducer para configurar el store
 export default CartSlice.reducer;
